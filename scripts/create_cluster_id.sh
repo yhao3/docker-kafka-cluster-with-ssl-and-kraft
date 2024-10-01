@@ -1,7 +1,7 @@
 #!/bin/bash
 
-file_path="/var/tmp/clusterID/clusterID"
-dir_path="/var/tmp/clusterID"
+file_path="/tmp/clusterID/clusterID"
+dir_path="/tmp/clusterID"
 
 if [ ! -d "$dir_path" ]; then
   mkdir -p "$dir_path"
@@ -12,6 +12,3 @@ if [ ! -f "$file_path" ]; then
   /bin/kafka-storage random-uuid > "$file_path"
   echo "Cluster ID has been created..."
 fi
-
-chmod 755 "$dir_path"
-chmod 644 "$file_path"
