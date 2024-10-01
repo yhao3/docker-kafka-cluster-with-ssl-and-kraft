@@ -25,6 +25,12 @@ services:
       KAFKA_CLUSTERS_0_SSL_TRUSTSTORELOCATION: /kafka.truststore.jks
       # KAFKA_CLUSTERS_0_SSL_TRUSTSTOREPASSWORD: ${KAFKA_CLUSTERS_0_SSL_TRUSTSTOREPASSWORD} # Configure this in .env
       KAFKA_CLUSTERS_0_PROPERTIES_SSL_ENDPOINT_IDENTIFICATION_ALGORITHM: "https"
+
+      # Basic Authentication for Web UI (https://docs.kafka-ui.provectus.io/configuration/authentication)
+      # AUTH_TYPE: "LOGIN_FORM"
+      # SPRING_SECURITY_USER_NAME: admin
+      # SPRING_SECURITY_USER_PASSWORD: pass
+
     volumes:
       - ./certs/kafka.truststore.jks:/kafka.truststore.jks
       - ./certs/kafka.keystore.jks:/kafka.keystore.jks
