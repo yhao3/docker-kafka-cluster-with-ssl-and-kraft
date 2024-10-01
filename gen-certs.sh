@@ -57,8 +57,8 @@ echo "$KEY_PASSWORD" > "$CERT_OUTPUT_PATH"/kafka_ssl_key_creds
 echo "Credentials generated: $CERT_OUTPUT_PATH/kafka_keystore_creds, $CERT_OUTPUT_PATH/kafka_truststore_creds, $CERT_OUTPUT_PATH/kafka_ssl_key_creds"
 
 echo "Generate .env file..."
-echo "CERTS_STORE_PASSWORD=$STORE_PASSWORD" > /config/.env
-echo "CERTS_TRUSTSTORE_PASSWORD=$TRUST_STORE_PASSWORD" >> /config/.env
+echo "KAFKA_CLUSTERS_0_PROPERTIES_SSL_KEYSTORE_PASSWORD=$STORE_PASSWORD" > /config/.env
+echo "KAFKA_CLUSTERS_0_SSL_TRUSTSTOREPASSWORD=$TRUST_STORE_PASSWORD" >> /config/.env
 echo "Environment file generated: (/config/.env)"
 
 echo "❷ Step 2: Create CA"
