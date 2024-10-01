@@ -1,0 +1,14 @@
+name: kafka-cluster
+
+services:
+
+  gen-certs:
+    container_name: gen-certs
+    image: eclipse-temurin:17-jre-focal
+    volumes:
+      - ./gen-certs.sh:/gen-certs.sh
+      - ./certs:/certs
+      - ./config:/config
+    command: "bash -c 'chmod +x /gen-certs.sh && /gen-certs.sh'"
+    env_file:
+      - .env

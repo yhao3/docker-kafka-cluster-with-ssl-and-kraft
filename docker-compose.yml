@@ -20,16 +20,16 @@ services:
       KAFKA_CLUSTERS_0_NAME: kafka-cluster
       KAFKA_CLUSTERS_0_PROPERTIES_SECURITY_PROTOCOL: SSL
       KAFKA_CLUSTERS_0_PROPERTIES_SSL_KEYSTORE_LOCATION: /kafka.keystore.jks
-      KAFKA_CLUSTERS_0_PROPERTIES_SSL_KEYSTORE_PASSWORD: ${CERTS_STORE_PASSWORD}
+      # KAFKA_CLUSTERS_0_PROPERTIES_SSL_KEYSTORE_PASSWORD: ${KAFKA_CLUSTERS_0_PROPERTIES_SSL_KEYSTORE_PASSWORD} # Configure this in .env
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka-1:1443,kafka-2:1443 # Use SSL_INTERNAL Listeners
       KAFKA_CLUSTERS_0_SSL_TRUSTSTORELOCATION: /kafka.truststore.jks
-      KAFKA_CLUSTERS_0_SSL_TRUSTSTOREPASSWORD: ${CERTS_TRUSTSTORE_PASSWORD}
+      # KAFKA_CLUSTERS_0_SSL_TRUSTSTOREPASSWORD: ${KAFKA_CLUSTERS_0_SSL_TRUSTSTOREPASSWORD} # Configure this in .env
       KAFKA_CLUSTERS_0_PROPERTIES_SSL_ENDPOINT_IDENTIFICATION_ALGORITHM: "https"
     volumes:
       - ./certs/kafka.truststore.jks:/kafka.truststore.jks
       - ./certs/kafka.keystore.jks:/kafka.keystore.jks
     env_file:
-      - .env
+      - ./config/.env
 
   kafka-gen:
     image: confluentinc/cp-kafka:7.3.2
