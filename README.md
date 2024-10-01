@@ -33,6 +33,18 @@ PASSWORD=p@ssw0rd # default: 123456
 DAYS_VALID=90 # default: 365
 ```
 
+> **Note**
+>
+> - `CNAME`: The common name for the certificate.
+> - `SAN`: The Subject Alternative Name for the certificate. You also can add IP addresses to the SAN (e.g. `IP:123.45.67.89`).
+> - `ORG_UNIT`: The organizational unit for the certificate.
+> - `ORG_NAME`: The organization name for the certificate.
+> - `LOCALITY`: The locality for the certificate.
+> - `STATE_OR_PROVINCE`: The state or province for the certificate.
+> - `COUNTRY_CODE`: The country code for the certificate.
+> - `PASSWORD`: The password for the keystore and truststore.
+> - `DAYS_VALID`: The number of days the certificate is valid.
+
 Once you have set the environment variables, you can generate the certificates by running the following command:
 
 ```bash
@@ -139,3 +151,26 @@ To stop the Kafka cluster, run the following command:
 ```bash
 $ docker-compose down
 ```
+
+## Configuration
+
+### Enable Authentication for Web UI
+
+To enable authentication for the web interface, you can update the `docker-compose.yml` file with the following environment variables:
+
+```diff
+services:
+
+  kafka-ui:
+    # ...
+    environment:
+      # ...
+      # Basic Authentication for Web UI (https://docs.kafka-ui.provectus.io/configuration/authentication)
++     AUTH_TYPE: "LOGIN_FORM"
++     SPRING_SECURITY_USER_NAME: admin
++     SPRING_SECURITY_USER_PASSWORD: pass
+```
+
+> **Info**
+> 
+> Please refer to the [Kafka UI documentation](https://docs.kafka-ui.provectus.io/configuration/authentication) for more information on configuring authentication.
