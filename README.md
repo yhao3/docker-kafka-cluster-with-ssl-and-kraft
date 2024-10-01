@@ -33,7 +33,7 @@ PASSWORD=p@ssw0rd # default: 123456
 DAYS_VALID=90 # default: 365
 ```
 
-> **Note**
+> [!NOTE]
 >
 > - `CNAME`: The common name for the certificate.
 > - `SAN`: The Subject Alternative Name for the certificate. You also can add IP addresses to the SAN (e.g. `IP:123.45.67.89`).
@@ -134,7 +134,7 @@ Once the certificates are generated, you can start the Kafka cluster using Docke
 $ docker-compose up -d
 ```
 
-> **Info**
+> [!NOTE]
 > 
 > This command will run the Kafka brokers in detached mode, allowing them to run in the background.
 
@@ -171,6 +171,6 @@ services:
 +     SPRING_SECURITY_USER_PASSWORD: pass
 ```
 
-> **Info**
+> [!NOTE]
 > 
 > Please refer to the [Kafka UI documentation](https://docs.kafka-ui.provectus.io/configuration/authentication) for more information on configuring authentication.
