@@ -37,7 +37,7 @@ services:
     container_name: kafka-gen
     volumes:
       - ./scripts/create_cluster_id.sh:/tmp/create_cluster_id.sh
-      - ./clusterID:/tmp/clusterID
+      - ./clusterID:/var/tmp/clusterID
     command: "bash -c '/tmp/create_cluster_id.sh'"
 
   kafka-1:
