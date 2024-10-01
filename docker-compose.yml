@@ -1,0 +1,138 @@
+name: kafka-cluster
+
+networks:
+  kafka-cluster:
+    driver: bridge
+
+services:
+
+  kafka-ui:
+    container_name: kafka-ui
+    image: provectuslabs/kafka-ui:latest
+    networks:
+      - kafka-cluster
+    ports:
+      - 8888:8080
+    depends_on:
+      - kafka-1
+      - kafka-2
+    environment:
+      KAFKA_CLUSTERS_0_NAME: kafka-cluster
+      KAFKA_CLUSTERS_0_PROPERTIES_SECURITY_PROTOCOL: SSL
+      KAFKA_CLUSTERS_0_PROPERTIES_SSL_KEYSTORE_LOCATION: /kafka.keystore.jks
+      KAFKA_CLUSTERS_0_PROPERTIES_SSL_KEYSTORE_PASSWORD: ${CERTS_STORE_PASSWORD}
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka-1:1443,kafka-2:1443 # Use SSL_INTERNAL Listeners
+      KAFKA_CLUSTERS_0_SSL_TRUSTSTORELOCATION: /kafka.truststore.jks
+      KAFKA_CLUSTERS_0_SSL_TRUSTSTOREPASSWORD: ${CERTS_TRUSTSTORE_PASSWORD}
+      KAFKA_CLUSTERS_0_PROPERTIES_SSL_ENDPOINT_IDENTIFICATION_ALGORITHM: "https"
+    volumes:
+      - ./certs/kafka.truststore.jks:/kafka.truststore.jks
+      - ./certs/kafka.keystore.jks:/kafka.keystore.jks
+    env_file:
+      - .env
+
+  kafka-gen:
+    image: confluentinc/cp-kafka:7.3.2
+    hostname: kafka-gen
+    container_name: kafka-gen
+    volumes:
+      - ./scripts/create_cluster_id.sh:/tmp/create_cluster_id.sh
+      - ./clusterID:/tmp/clusterID
+    command: "bash -c '/tmp/create_cluster_id.sh'"
+
+  kafka-1:
+    image: confluentinc/cp-kafka:7.3.2
+    hostname: kafka-1
+    container_name: kafka-1
+    networks:
+      - kafka-cluster
+    ports:
+      - "20443:443"
+    volumes:
+      - kafka-1-data:/var/lib/kafka/data
+      - ./scripts/update_run.sh:/tmp/update_run.sh
+      - ./clusterID:/tmp/clusterID
+      - ./certs:/etc/kafka/secrets
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: 'broker,controller'
+
+      # Kafka Listeners (host:port)
+      # (1) SSL listener --> kafka-1:443
+      # (2) SSL_INTERNAL listener --> kafka-1:1443
+      # (3) CONTROLLER listener --> kafka-1:29093
+      KAFKA_LISTENERS: 'SSL://kafka-1:443,SSL_INTERNAL://kafka-1:1443,CONTROLLER://kafka-1:29093'
+
+      # Listener security protocol mapping
+      # (1) CONTROLLER listener --> Use PLAINTEXT
+      # (2) SSL listener --> Use SSL protocol
+      # (3) SSL_INTERNAL listener --> Use SSL protocol
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,SSL:SSL,SSL_INTERNAL:SSL'
+
+      # The advertised listeners to be sent to clients
+      # (1) Use kafka-1:20443 to connect to Kafka via SSL listener
+      # (2) Use kafka-1:1443 to connect to Kafka via SSL_INTERNAL listener
+      KAFKA_ADVERTISED_LISTENERS: 'SSL://kafka-1:20443,SSL_INTERNAL://kafka-1:1443'
+
+      # The address of the candidate controller nodes (comma-separated)
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka-1:29093,2@kafka-2:29093'
+      # Set the listener name for inter-broker communication
+      KAFKA_INTER_BROKER_LISTENER_NAME: 'SSL_INTERNAL'
+
+      KAFKA_SECURITY_PROTOCOL: SSL
+      KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_LOG_DIRS: '/tmp/kraft-combined-logs'
+      KAFKA_SSL_KEYSTORE_FILENAME: 'kafka.keystore.jks'
+      KAFKA_SSL_KEYSTORE_CREDENTIALS: 'kafka_keystore_creds'
+      KAFKA_SSL_KEY_CREDENTIALS: 'kafka_ssl_key_creds'
+      KAFKA_SSL_TRUSTSTORE_FILENAME: 'kafka.truststore.jks'
+      KAFKA_SSL_TRUSTSTORE_CREDENTIALS: 'kafka_truststore_creds'
+      KAFKA_SSL_CLIENT_AUTH: 'required'
+      KAFKA_SSL_ENDPOINT_IDENTIFICATION_ALGORITHM: ""
+    # Execute the update script and start Kafka
+    command: "bash -c '/tmp/update_run.sh && /etc/confluent/docker/run'"
+
+  kafka-2:
+    image: confluentinc/cp-kafka:7.3.2
+    hostname: kafka-2
+    container_name: kafka-2
+    networks:
+      - kafka-cluster
+    ports:
+      - "30443:443"
+    volumes:
+      - kafka-2-data:/var/lib/kafka/data
+      - ./scripts/update_run.sh:/tmp/update_run.sh
+      - ./clusterID:/tmp/clusterID
+      - ./certs:/etc/kafka/secrets
+    environment:
+      KAFKA_NODE_ID: 2
+      KAFKA_PROCESS_ROLES: 'broker,controller'
+      KAFKA_LISTENERS: 'SSL://kafka-2:443,SSL_INTERNAL://kafka-2:1443,CONTROLLER://kafka-2:29093'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,SSL:SSL,SSL_INTERNAL:SSL'
+      KAFKA_ADVERTISED_LISTENERS: 'SSL://kafka-2:30443,SSL_INTERNAL://kafka-2:1443'
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka-1:29093,2@kafka-2:29093'
+      KAFKA_INTER_BROKER_LISTENER_NAME: 'SSL_INTERNAL'
+      KAFKA_SECURITY_PROTOCOL: SSL
+      KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_LOG_DIRS: '/tmp/kraft-combined-logs'
+      KAFKA_SSL_KEYSTORE_FILENAME: 'kafka.keystore.jks'
+      KAFKA_SSL_KEYSTORE_CREDENTIALS: 'kafka_keystore_creds'
+      KAFKA_SSL_KEY_CREDENTIALS: 'kafka_ssl_key_creds'
+      KAFKA_SSL_TRUSTSTORE_FILENAME: 'kafka.truststore.jks'
+      KAFKA_SSL_TRUSTSTORE_CREDENTIALS: 'kafka_truststore_creds'
+      KAFKA_SSL_CLIENT_AUTH: 'required'
+      KAFKA_SSL_ENDPOINT_IDENTIFICATION_ALGORITHM: ""
+    command: "bash -c '/tmp/update_run.sh && /etc/confluent/docker/run'"
+
+volumes:
+  kafka-1-data:
+  kafka-2-data:
