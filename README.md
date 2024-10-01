@@ -130,6 +130,8 @@ $ docker-compose up -d
 
 You can now access the Kafka cluster via the web interface at [`http://localhost:8888`](http://localhost:8888). Use this interface to interact with your Kafka brokers, manage topics, and monitor cluster health.
 
+![Kafka UI](./docs/images/kafka-ui.png)
+
 ### 4. Clean up
 
 To stop the Kafka cluster, run the following command:
